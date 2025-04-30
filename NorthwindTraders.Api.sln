@@ -5,6 +5,12 @@ VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindTraders.Api", "NorthwindTraders.Api\NorthwindTraders.Api.csproj", "{F825274D-CAC3-492D-BCC4-2F3F14141119}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindTraders.Infrastructure", "NorthwindTraders.Infrastructure\NorthwindTraders.Infrastructure.csproj", "{FC94B0C6-1E9F-44E0-82AE-B0B5C5AA7BFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindTraders.Domain", "NorthwindTraders.Domain\NorthwindTraders.Domain.csproj", "{52138E01-0848-4C09-93C4-6268B77623CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindTraders.Application", "NorthwindTraders.Application\NorthwindTraders.Application.csproj", "{2FD627F1-A1C5-4DF8-9A13-1E8C2DD93D6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{F825274D-CAC3-492D-BCC4-2F3F14141119}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F825274D-CAC3-492D-BCC4-2F3F14141119}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F825274D-CAC3-492D-BCC4-2F3F14141119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC94B0C6-1E9F-44E0-82AE-B0B5C5AA7BFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC94B0C6-1E9F-44E0-82AE-B0B5C5AA7BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC94B0C6-1E9F-44E0-82AE-B0B5C5AA7BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC94B0C6-1E9F-44E0-82AE-B0B5C5AA7BFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52138E01-0848-4C09-93C4-6268B77623CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52138E01-0848-4C09-93C4-6268B77623CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52138E01-0848-4C09-93C4-6268B77623CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52138E01-0848-4C09-93C4-6268B77623CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FD627F1-A1C5-4DF8-9A13-1E8C2DD93D6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD627F1-A1C5-4DF8-9A13-1E8C2DD93D6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD627F1-A1C5-4DF8-9A13-1E8C2DD93D6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD627F1-A1C5-4DF8-9A13-1E8C2DD93D6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
