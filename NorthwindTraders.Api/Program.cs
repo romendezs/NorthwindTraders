@@ -1,3 +1,6 @@
+using NorthwindTraders.Application;
+using NorthwindTraders.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +9,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add services to the container.
+builder.Services.AddApplication();
+builder.Services.AddAutoMapper(typeof(Program)); // Replace 'Program' with the assembly containing your AutoMapper profiles.
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
