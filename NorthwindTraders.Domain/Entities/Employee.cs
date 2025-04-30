@@ -28,6 +28,6 @@ namespace NorthwindTraders.Domain.Entities
         public string PhotoPath { get; set; } = string.Empty;
 
         // Optional: navigation property if using EF Core
-        public Employee? Manager { get; set; }
+        //public Employee? Manager { get; set; }
     }
 }

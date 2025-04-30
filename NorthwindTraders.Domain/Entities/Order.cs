@@ -48,8 +48,8 @@ namespace NorthwindTraders.Domain.Entities
         public string ShipCountry { get; set; }
 
         // Navigation properties (optional, depending on relationships)
-        // public Customer Customer { get; set; }
-        // public Employee Employee { get; set; }
+        public Customer Customer { get; set; }
+        public Employee Employee { get; set; }
         // public Shipper Shipper { get; set; }
     }
 }
