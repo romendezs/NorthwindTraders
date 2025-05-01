@@ -1,4 +1,5 @@
 using NorthwindTraders.Application;
+using NorthwindTraders.Application.Mapping;
 using NorthwindTraders.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,6 @@ builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddApplication();
-builder.Services.AddAutoMapper(typeof(Program)); // Replace 'Program' with the assembly containing your AutoMapper profiles.
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddControllers();

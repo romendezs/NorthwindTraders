@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace NorthwindTraders.Infrastructure.Repositories
@@ -53,14 +54,64 @@ namespace NorthwindTraders.Infrastructure.Repositories
 
         public async Task<IEnumerable<Order>> GetOrderByEmployee(int employeeID)
         {
-            return await context
-                .Set<Order>()
-                .Include(o => o.Customer)
-                .Include(o => o.Employee)
-                .AsNoTracking()
-                .Where(o => o.Employee.EmployeeID == employeeID)
-                .ToListAsync()
-                .ConfigureAwait(false);
+            try
+            {
+                var orders = await context
+                    .Set<Order>()
+                    //.Include(o => o.Customer) // Left join with Customer (could be null)
+                    //.Include(o => o.Employee) // Left join with Employee (could be null)
+                    .AsNoTracking()
+                    .Where(o => o.Employee != null && o.Employee.EmployeeID == employeeID) // Ensure Employee is not null
+                    .Select(o => new Order
+                    {
+                        OrderID = o.OrderID,
+                        CustomerID = o.CustomerID,
+                        EmployeeID = o.EmployeeID,
+                        OrderDate = o.OrderDate,
+                        RequiredDate = o.RequiredDate,
+                        ShippedDate = o.ShippedDate,
+                        Freight = o.Freight, // No null-coalescing needed as Freight is not nullable
+                        ShipName = o.ShipName ?? string.Empty, // Safeguard nullable strings
+                        ShipAddress = o.ShipAddress ?? string.Empty, // Safeguard nullable strings
+                        ShipCity = o.ShipCity ?? string.Empty,
+                        ShipRegion = o.ShipRegion ?? string.Empty,
+                        ShipPostalCode = o.ShipPostalCode ?? string.Empty,
+                        ShipCountry = o.ShipCountry ?? string.Empty,
+
+                        // Safeguard related entities for nulls
+                        Customer = o.Customer != null
+                            ? new Customer
+                            {
+                                CustomerID = o.Customer.CustomerID,
+                                CompanyName = o.Customer.CompanyName ?? string.Empty
+                            }
+                            : null,
+                        Employee = o.Employee != null
+                            ? new Employee
+                            {
+                                EmployeeID = o.Employee.EmployeeID,
+                                FirstName = o.Employee.FirstName ?? string.Empty,
+                                LastName = o.Employee.LastName ?? string.Empty
+                            }
+                            : null
+                    })
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+               /* foreach (var order in orders)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(order));
+                }*/
+
+                return orders;
+
+            }
+            catch (Exception ex)
+            {
+                // Log useful details for debugging
+                Console.WriteLine(ex + $"Failed to fetch orders for employeeID: {employeeID}");
+                throw;
+            }
         }
 
         public async Task<Order> GetOrderById(int orderId)

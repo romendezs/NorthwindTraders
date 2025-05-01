@@ -1,18 +1,19 @@
-﻿using AutoMapper;
-using NorthwindTraders.Application.DTOs;
+﻿using NorthwindTraders.Application.DTOs;
 using NorthwindTraders.Application.Interfaces;
 using NorthwindTraders.Domain.Entities;
 using NorthwindTraders.Domain.Interfaces;
+using NorthwindTraders.Application.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NorthwindTraders.Application.Services
 {
-    public class NorthwindService(IRepository repository, IMapper mapper) : INorthwindService
+    public class NorthwindService(IRepository repository) : INorthwindService
     {
         public async Task<int> AddOrder(OrderDto order)
         {
@@ -32,7 +33,7 @@ namespace NorthwindTraders.Application.Services
                 throw new Exception("Order info is not valid, missing or empty fields");
             }
 
-            var orderDb = mapper.Map<Order>(order);
+            var orderDb = NorthwindMapping.ToOrder(order);
             await repository.AddOrder(orderDb).ConfigureAwait(false);
 
             return 1;
@@ -54,7 +55,7 @@ namespace NorthwindTraders.Application.Services
                 throw new Exception("Line info is not valid, missing or empty fields");
             }
 
-            var orderDetailDb = mapper.Map<OrderDetail>(orderDetail);
+            var orderDetailDb = NorthwindMapping.ToOrderDetail(orderDetail);
             await repository.AddOrderDetail(orderDetailDb).ConfigureAwait(false);
             return 1;
         }
@@ -66,8 +67,9 @@ namespace NorthwindTraders.Application.Services
             {
                 throw new Exception("The order does not exist");
             }
-
-            var ordersDto = ordersDb.Select(o => mapper.Map<OrderDto>(o)).ToList();
+            Console.WriteLine(JsonSerializer.Serialize(ordersDb));
+            //var ordersDto = ordersDb.Select(o => mapper.Map<OrderDto>(o)).ToList();
+            var ordersDto = ordersDb.Select(o=>NorthwindMapping.ToOrderDto(o)).ToList();
             return ordersDto;
 
         }
@@ -78,7 +80,7 @@ namespace NorthwindTraders.Application.Services
                 throw new Exception("The order does not exist");
             }
 
-            var ordersDto = ordersDb.Select(o => mapper.Map<OrderDto>(o)).ToList();
+            var ordersDto = ordersDb.Select(o => NorthwindMapping.ToOrderDto(o)).ToList();
             return ordersDto;
         }
         public async Task<IEnumerable<OrderDto>> GetOrderByEmployee(int employeeID) {
@@ -88,7 +90,7 @@ namespace NorthwindTraders.Application.Services
                 throw new Exception("The order does not exist");
             }
 
-            var ordersDto = ordersDb.Select(o => mapper.Map<OrderDto>(o)).ToList();
+            var ordersDto = ordersDb.Select(o => NorthwindMapping.ToOrderDto(o)).ToList();
             return ordersDto;
 
         }
@@ -100,7 +102,7 @@ namespace NorthwindTraders.Application.Services
             {
                 throw new Exception("The order does not exist");
             }
-            var orderDto = mapper.Map<OrderDto>(orderDb);
+            var orderDto = NorthwindMapping.ToOrderDto(orderDb);
             return orderDto;
         }
 
@@ -111,7 +113,7 @@ namespace NorthwindTraders.Application.Services
                 throw new Exception("The order does not exist");
             }
 
-            var ordersDetailsDto = ordersDetailsDb.Select(o => mapper.Map<LineDto>(o)).ToList();
+            var ordersDetailsDto = ordersDetailsDb.Select(o => NorthwindMapping.ToLineDto(o)).ToList();
             return ordersDetailsDto;
         }
     }

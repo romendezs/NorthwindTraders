@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace NorthwindTraders.Domain.Entities
 {
+    [Table("Customers")]
     public class Customer
     {
+
         [Key]
         [StringLength(5)]
         public string CustomerID { get; set; }
