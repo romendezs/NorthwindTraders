@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NorthwindTraders.Application.Mapping;
 using NorthwindTraders.Domain.Entities;
 using NorthwindTraders.Domain.Interfaces;
 using NorthwindTraders.Infrastructure.Persistence;
@@ -13,8 +14,10 @@ namespace NorthwindTraders.Infrastructure.Repositories
 {
     public class Repository(AppDbContext context) : IRepository
     {
+
+        //POST
         public async Task<int> AddOrder(Order order)
-        {
+        {   
             await context.Orders.AddAsync(order).ConfigureAwait(false);
             await context.SaveChangesAsync();
             return order.OrderID;
@@ -27,27 +30,24 @@ namespace NorthwindTraders.Infrastructure.Repositories
             return orderDetail.ProductId;
         }
 
-        public async Task<IEnumerable<Order>> GetOrderByDate(DateTime date)
+        //GET
+       public async Task<IEnumerable<Order>> GetOrderByDate(DateTime date)
         {
             return await context
                 .Set<Order>()
-                .Include(o => o.Customer)
-                .Include(o => o.Employee)
                 .AsNoTracking()
-                .Where(o => o.OrderDate.Date == date)
+                .Where(o => o.OrderDate == date)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
         }
-
+       
         public async Task<IEnumerable<Order>> GetOrderByCustomer(string customerID)
         {
             return await context
                 .Set<Order>()
-                .Include(o => o.Customer)
-                .Include(o => o.Employee)
                 .AsNoTracking()
-                .Where(o => o.Customer.CustomerID == customerID)
+                .Where(o => o.CustomerID == customerID)
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
@@ -56,59 +56,16 @@ namespace NorthwindTraders.Infrastructure.Repositories
         {
             try
             {
-                var orders = await context
+                return await context
                     .Set<Order>()
-                    //.Include(o => o.Customer) // Left join with Customer (could be null)
-                    //.Include(o => o.Employee) // Left join with Employee (could be null)
                     .AsNoTracking()
-                    .Where(o => o.Employee != null && o.Employee.EmployeeID == employeeID) // Ensure Employee is not null
-                    .Select(o => new Order
-                    {
-                        OrderID = o.OrderID,
-                        CustomerID = o.CustomerID,
-                        EmployeeID = o.EmployeeID,
-                        OrderDate = o.OrderDate,
-                        RequiredDate = o.RequiredDate,
-                        ShippedDate = o.ShippedDate,
-                        Freight = o.Freight, // No null-coalescing needed as Freight is not nullable
-                        ShipName = o.ShipName ?? string.Empty, // Safeguard nullable strings
-                        ShipAddress = o.ShipAddress ?? string.Empty, // Safeguard nullable strings
-                        ShipCity = o.ShipCity ?? string.Empty,
-                        ShipRegion = o.ShipRegion ?? string.Empty,
-                        ShipPostalCode = o.ShipPostalCode ?? string.Empty,
-                        ShipCountry = o.ShipCountry ?? string.Empty,
-
-                        // Safeguard related entities for nulls
-                        Customer = o.Customer != null
-                            ? new Customer
-                            {
-                                CustomerID = o.Customer.CustomerID,
-                                CompanyName = o.Customer.CompanyName ?? string.Empty
-                            }
-                            : null,
-                        Employee = o.Employee != null
-                            ? new Employee
-                            {
-                                EmployeeID = o.Employee.EmployeeID,
-                                FirstName = o.Employee.FirstName ?? string.Empty,
-                                LastName = o.Employee.LastName ?? string.Empty
-                            }
-                            : null
-                    })
+                    .Where(o => o.EmployeeID == employeeID)
                     .ToListAsync()
                     .ConfigureAwait(false);
-
-               /* foreach (var order in orders)
-                {
-                    Console.WriteLine(JsonSerializer.Serialize(order));
-                }*/
-
-                return orders;
 
             }
             catch (Exception ex)
             {
-                // Log useful details for debugging
                 Console.WriteLine(ex + $"Failed to fetch orders for employeeID: {employeeID}");
                 throw;
             }
@@ -118,8 +75,6 @@ namespace NorthwindTraders.Infrastructure.Repositories
         {
             return await context
                 .Set<Order>()
-                .Include(o => o.Customer)
-                .Include(o => o.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.OrderID == orderId)
                 .ConfigureAwait(false);
@@ -130,12 +85,82 @@ namespace NorthwindTraders.Infrastructure.Repositories
         {
             return await context
                 .Set<OrderDetail>()
-                .Include(od => od.Order)
-                .Include(od => od.Product)
                 .AsNoTracking()
-                .Where(od => od.Order.OrderID == orderID)
+                .Where(od => od.OrderId == orderID)
                 .ToListAsync()
                 .ConfigureAwait(false);
+        }
+
+        public async Task<Employee> GetEmployeeById(int employeeID)
+        {
+            return await context
+                .Set<Employee>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EmployeeID == employeeID)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<Customer> GetCustomerById(string customerID)
+        {
+            return await context
+                .Set<Customer>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CustomerID == customerID)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<Product> GetProductById(int productID)
+        {
+            return await context
+                .Set<Product>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.ProductID == productID)
+                .ConfigureAwait(false);
+        }
+
+
+        //UPDATE
+        public async Task<int> UpdateOrder(Order order)
+        {
+            context.Orders.Update(order);
+            await context.SaveChangesAsync();
+            return order.OrderID;
+        }
+
+        public async Task<int> UpdateOrderDetail(OrderDetail orderDetail)
+        {
+            context.OrderDetails.Update(orderDetail);
+            await context.SaveChangesAsync();
+            return orderDetail.ProductId;
+        }
+
+        //DELETE
+        public async Task<int> DeleteOrder(int orderID)
+        {
+            var existingOrder = await context.Orders
+            .FirstOrDefaultAsync(o => o.OrderID == orderID)
+            .ConfigureAwait(false);
+
+            if (existingOrder != null)
+            {
+                context.Orders.Remove(existingOrder);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            return orderID;
+        }
+
+        public async Task<int> DeleteOrderDetail(int orderID, int productID)
+        {
+            var existingOrderDetail = await context.OrderDetails
+            .FirstOrDefaultAsync(od => od.ProductId == productID && od.OrderId == orderID)
+            .ConfigureAwait(false);
+
+            if (existingOrderDetail != null)
+            {
+                context.OrderDetails.Remove(existingOrderDetail);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            return productID;
         }
     }
 }

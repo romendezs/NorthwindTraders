@@ -1,4 +1,7 @@
-﻿using NorthwindTraders.Application.DTOs;
+﻿using Microsoft.Extensions.DependencyInjection;
+using NorthwindTraders.Application.DTOs;
+using NorthwindTraders.Application.Interfaces;
+using NorthwindTraders.Application.Services;
 using NorthwindTraders.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,16 +22,12 @@ namespace NorthwindTraders.Application.Mapping
                 OrderID = order.OrderID,
                 CustomerID = order.CustomerID ?? string.Empty,
                 EmployeeID = order.EmployeeID ?? 0,
-                OrderDate = order.OrderDate,
+                OrderDate = Convert.ToDateTime(order.OrderDate),
                 ShipAddress = order.ShipAddress ?? string.Empty,
-                Customer = order.Customer != null ? new CustomerDto
-                {
-                    // Map properties from Customer to CustomerDto here
-                } : null!,
-                Employee = order.Employee != null ? new EmployeeDto
-                {
-                    // Map properties from Employee to EmployeeDto here
-                } : null!
+                ShipCity = order.ShipCity ?? string.Empty,
+                ShipRegion = order.ShipRegion ?? string.Empty,
+                ShipPostalCode = order.ShipPostalCode ?? string.Empty,
+                ShipCountry = order.ShipCountry ?? string.Empty
             };
         }
 
@@ -40,33 +39,30 @@ namespace NorthwindTraders.Application.Mapping
                 OrderID = orderDto.OrderID,
                 CustomerID = orderDto.CustomerID ?? string.Empty,
                 EmployeeID = orderDto.EmployeeID,
-                OrderDate = orderDto.OrderDate,
+                OrderDate = orderDto.OrderDate.ToUniversalTime().Date,
                 ShipAddress = orderDto.ShipAddress ?? string.Empty,
-                Customer = orderDto.Customer != null ? new Customer
-                {
-                    // Map properties from CustomerDto to Customer here
-                } : null!,
-                Employee = orderDto.Employee != null ? new Employee
-                {
-                    // Map properties from EmployeeDto to Employee here
-                } : null!
+                ShipCity = orderDto.ShipCity ?? string.Empty,
+                ShipRegion = orderDto.ShipRegion ?? string.Empty,
+                ShipPostalCode = orderDto.ShipPostalCode ?? string.Empty,
+                ShipCountry = orderDto.ShipCountry ?? string.Empty
+
             };
         }
 
-        public static LineDto ToLineDto(OrderDetail detail)
+        public static LineDto ToLineDto(OrderDetail detail, INorthwindService service)
         {
             if (detail == null) return null!;
 
             // Apply discount to get the final unit price
-            var discountedPrice = detail.UnitPrice * (1 - (decimal)detail.Discount);
+            var productTask = service.GetProductById(detail.ProductId);
+            var product = productTask.Result; // Ensure the task is awaited or resolved
+            var discountedPrice = product.Price * (1 - (decimal)detail.Discount);
 
             return new LineDto
             {
                 OrderId = detail.OrderId,
                 ProductId = detail.ProductId,
-                ProductName = detail.Product?.ProductName ?? "Unknown",
                 Quantity = detail.Quantity,
-                Price = decimal.Round(discountedPrice, 2),
                 Amount = decimal.Round(discountedPrice * detail.Quantity, 2)
             };
         }
@@ -75,20 +71,45 @@ namespace NorthwindTraders.Application.Mapping
         {
             if (dto == null) return null!;
 
-            // Assuming Price = UnitPrice after discount
-            // We reverse the discount assumption here; if discount is unknown, assume 0
             return new OrderDetail
             {
                 OrderId = dto.OrderId,
                 ProductId = dto.ProductId,
                 Quantity = (short)dto.Quantity,
-                UnitPrice = dto.Price, // You may need to adjust this if discount should be backed out
-                Discount = 0f, // Cannot recover original discount from LineDto
-                Product = new Product
-                {
-                    ProductID = dto.ProductId,
-                    ProductName = dto.ProductName
-                }
+                UnitPrice = dto.Amount/dto.Quantity,
+                Discount = 0 // Default discount
+            };
+        }
+
+        public static EmployeeDto ToEmployeeDto(Employee employee)
+        {
+            if (employee == null) return null!;
+            return new EmployeeDto
+            {
+                EmployeeID = employee.EmployeeID,
+                FirstName = employee.FirstName ?? string.Empty,
+                LastName = employee.LastName ?? string.Empty
+            };
+        }
+
+        public static CustomerDto ToCustomerDto(Customer customer)
+        {
+            if(customer == null) return null!;
+            return new CustomerDto
+            {
+                CustomerID = customer.CustomerID,
+                CompanyName = customer.CompanyName ?? string.Empty,
+            };
+        }
+
+        public static ProductDto ToProductDto(Product product)
+        {
+            if (product == null) return null!;
+            return new ProductDto
+            {
+                ProductID = product.ProductID,
+                ProductName = product.ProductName ?? string.Empty,
+                Price = product.UnitPrice
             };
         }
     }

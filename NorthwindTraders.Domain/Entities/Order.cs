@@ -19,13 +19,13 @@ namespace NorthwindTraders.Domain.Entities
 
         public int? EmployeeID { get; set; } // Make nullable
 
-        public DateTime OrderDate { get; set; }
+        public DateTime? OrderDate { get; set; }
 
-        public DateTime RequiredDate { get; set; }
+        public DateTime? RequiredDate { get; set; }
 
         public DateTime? ShippedDate { get; set; }
 
-        public int ShipVia { get; set; }
+        public int? ShipVia { get; set; }
 
         [Column(TypeName = "money")]
         public decimal Freight { get; set; }
@@ -49,8 +49,8 @@ namespace NorthwindTraders.Domain.Entities
         public string? ShipCountry { get; set; }
 
         // Navigation properties
-        public Customer? Customer { get; set; } // Nullable
-        public Employee? Employee { get; set; } // Nullable
+       // public Customer? Customer { get; set; } // Nullable
+        //public Employee? Employee { get; set; } // Nullable
                                                 // public Shipper Shipper { get; set; }
     }
 }
