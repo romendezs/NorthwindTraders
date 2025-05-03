@@ -1,6 +1,8 @@
 using NorthwindTraders.Application;
 using NorthwindTraders.Application.Mapping;
+using NorthwindTraders.Domain.Interfaces.ExternalServices;
 using NorthwindTraders.Infrastructure;
+using NorthwindTraders.Infrastructure.ExternalServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,12 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 builder.Services.AddApplication();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddHttpClient<IAddressValidationApi, AddressValidationApi>(client =>
+{
+    client.BaseAddress = new Uri("https://addressvalidation.googleapis.com");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
